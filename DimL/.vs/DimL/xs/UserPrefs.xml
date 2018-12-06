@@ -1,0 +1,15 @@
+﻿<Properties StartupConfiguration="{952F8900-9543-4D90-8562-8CE61E5D0043}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="DimL/Engine.cs">
+    <Files>
+      <File FileName="DimL/Engine.cs" Line="31" Column="40" />
+      <File FileName="DimL/Program.cs" Line="15" Column="45" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.ItemProperties.DimL PreferredExecutionTarget="MonoDevelop.Default" />
+</Properties>

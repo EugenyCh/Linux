@@ -1,0 +1,16 @@
+/home/eugeny/Projects/DimL/DimL/bin/Release/DimL.exe
+/home/eugeny/Projects/DimL/DimL/bin/Release/MathNet.Numerics.dll
+/home/eugeny/Projects/DimL/DimL/bin/Release/Newtonsoft.Json.dll
+/home/eugeny/Projects/DimL/DimL/bin/Release/OpenGL.Net.dll
+/home/eugeny/Projects/DimL/DimL/bin/Release/sfmlnet-audio-2.dll
+/home/eugeny/Projects/DimL/DimL/bin/Release/sfmlnet-graphics-2.dll
+/home/eugeny/Projects/DimL/DimL/bin/Release/sfmlnet-system-2.dll
+/home/eugeny/Projects/DimL/DimL/bin/Release/sfmlnet-window-2.dll
+/home/eugeny/Projects/DimL/DimL/bin/Release/OpenGL.Net.pdb
+/home/eugeny/Projects/DimL/DimL/bin/Release/OpenGL.Net.xml
+/home/eugeny/Projects/DimL/DimL/bin/Release/Newtonsoft.Json.pdb
+/home/eugeny/Projects/DimL/DimL/bin/Release/Newtonsoft.Json.xml
+/home/eugeny/Projects/DimL/DimL/bin/Release/MathNet.Numerics.xml
+/home/eugeny/Projects/DimL/DimL/obj/x86/Release/DimL.csproj.CoreCompileInputs.cache
+/home/eugeny/Projects/DimL/DimL/obj/x86/Release/DimL.csproj.CopyComplete
+/home/eugeny/Projects/DimL/DimL/obj/x86/Release/DimL.exe
