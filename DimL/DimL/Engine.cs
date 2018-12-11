@@ -1,8 +1,7 @@
 ﻿using System;
-using System.IO;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
-using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using OpenTK;
 using OpenTK.Input;
@@ -24,6 +23,7 @@ namespace DimL
         private readonly float[] mat_ambient = { 0.2f, 0.4f, 0.6f, 1.0f };
         private readonly float[] mat_diffuse = { 0.5f, 0.8f, 1.0f, 1.0f };
         private Vector3 lookFrom = new Vector3(5.0f, 5.0f, 5.0f);
+        private Font font = new Font("Inconsolata", 64, FontStyle.Bold);
 
         public VFigure Figure { get; set; } = new VFigure();
         public int Dimension => Figure.Dimension;
@@ -167,6 +167,36 @@ namespace DimL
             Rotate(deltaAngle);
         }
 
+        private Bitmap GetLabelImage()
+        {
+            var bmp = new Bitmap(256, 256, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            var graphics = Graphics.FromImage(bmp);
+            graphics.Clear(Color.Coral);
+            graphics.DrawString($"{window.RenderFrequency}", font, Brushes.Cyan, new PointF(0, 0));
+            graphics.Flush();
+            return bmp;
+        }
+
+        private int LoadTexture(Bitmap bmp)
+        {
+            int id = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, id);
+            BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly,
+                System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, data.Width, data.Height,
+                0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+            bmp.UnlockBits(data);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS,
+                (int)TextureWrapMode.Clamp);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT,
+                (int)TextureWrapMode.Clamp);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
+                (int)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
+                (int)TextureMagFilter.Linear);
+            return id;
+        }
+
         private void Render(object sender, EventArgs ev)
         {
             // CUBE
@@ -187,8 +217,10 @@ namespace DimL
 
             // LABEL
             GL.Disable(EnableCap.Lighting);
+            GL.Enable(EnableCap.Texture2D);
+            var texture = LoadTexture(GetLabelImage());
+            GL.BindTexture(TextureTarget.Texture2D, texture);
             GL.Clear(ClearBufferMask.DepthBufferBit);
-            GL.Viewport(0, 0, window.Width, window.Height);
             GL.MatrixMode(MatrixMode.Projection);
             GL.PushMatrix();
             GL.LoadIdentity();
@@ -196,16 +228,21 @@ namespace DimL
             GL.MatrixMode(MatrixMode.Modelview);
             GL.PushMatrix();
             GL.LoadIdentity();
-            GL.Color4(1.0, 0.5, 0.5, 0.5);
+            GL.Color4(1.0, 0.5, 0.5, 1.0);
             GL.Begin(PrimitiveType.Polygon);
+            GL.TexCoord2(0, 1);
             GL.Vertex2(window.Width / 2, window.Height / 2);
-            GL.Vertex2(window.Width / 2 + 64, window.Height / 2);
+            GL.TexCoord2(1, 1);
+            GL.Vertex2(window.Width / 2 + 64,  window.Height / 2);
+            GL.TexCoord2(1, 0);
             GL.Vertex2(window.Width / 2 + 128, window.Height / 2 + 64);
+            GL.TexCoord2(0, 0);
             GL.Vertex2(window.Width / 2, window.Height / 2 + 64);
             GL.End();
             GL.PopMatrix();
             GL.MatrixMode(MatrixMode.Projection);
             GL.PopMatrix();
+            GL.Disable(EnableCap.Texture2D);
             window.SwapBuffers();
         }
 
