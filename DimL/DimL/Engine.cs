@@ -21,8 +21,9 @@ namespace DimL
         private readonly double speed = Math.PI / 3;
         private readonly List<int[]> planes = new List<int[]>();
         private int activePlane = 0;
-        private readonly float[] mat_ambient = { 0.2f, 0.4f, 0.6f };
-        private readonly float[] mat_diffuse = { 0.5f, 0.8f, 1.0f };
+        private readonly float[] mat_ambient = { 0.2f, 0.4f, 0.6f, 1.0f };
+        private readonly float[] mat_diffuse = { 0.5f, 0.8f, 1.0f, 1.0f };
+        private Vector3 lookFrom = new Vector3(5.0f, 5.0f, 5.0f);
 
         public VFigure Figure { get; set; } = new VFigure();
         public int Dimension => Figure.Dimension;
@@ -52,9 +53,11 @@ namespace DimL
             GL.Enable(EnableCap.Light0);
             GL.Enable(EnableCap.Normalize);
             GL.ShadeModel(ShadingModel.Smooth);
+            GL.Light(LightName.Light0, LightParameter.Position, new float[] { -5f, 5f, 0f, 1f });
             GL.Material(MaterialFace.Front, MaterialParameter.Ambient, mat_ambient);
             GL.Material(MaterialFace.Front, MaterialParameter.Diffuse, mat_diffuse);
-            GL.Light(LightName.Light0, LightParameter.Position, new float[] { -5f, 5f, 0f, 1f });
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            GL.Enable(EnableCap.Blend);
         }
 
         public bool LoadFigure(string pathToJson)
@@ -166,10 +169,11 @@ namespace DimL
 
         private void Render(object sender, EventArgs ev)
         {
+            // CUBE
             GL.Enable(EnableCap.Lighting);
             GL.MatrixMode(MatrixMode.Modelview);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             foreach (var polygon in Figure.Polygons)
             {
                 GL.Begin(PrimitiveType.Polygon);
@@ -180,13 +184,28 @@ namespace DimL
                 }
                 GL.End();
             }
+
+            // LABEL
             GL.Disable(EnableCap.Lighting);
+            GL.Clear(ClearBufferMask.DepthBufferBit);
+            GL.Viewport(0, 0, window.Width, window.Height);
             GL.MatrixMode(MatrixMode.Projection);
-            GL.Color3(1.0, 1.0, 1.0);
-            GL.PointSize(32);
-            GL.Begin(PrimitiveType.Points);
-            GL.Vertex3(4, 4, 4);
+            GL.PushMatrix();
+            GL.LoadIdentity();
+            GL.Ortho(0, window.Width, 0, window.Height, -100, 100);
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.PushMatrix();
+            GL.LoadIdentity();
+            GL.Color4(1.0, 0.5, 0.5, 0.5);
+            GL.Begin(PrimitiveType.Polygon);
+            GL.Vertex2(window.Width / 2, window.Height / 2);
+            GL.Vertex2(window.Width / 2 + 64, window.Height / 2);
+            GL.Vertex2(window.Width / 2 + 128, window.Height / 2 + 64);
+            GL.Vertex2(window.Width / 2, window.Height / 2 + 64);
             GL.End();
+            GL.PopMatrix();
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.PopMatrix();
             window.SwapBuffers();
         }
 
@@ -199,7 +218,7 @@ namespace DimL
                 aspect,
                 .1f, 100f);
             Matrix4 lookAtMatrix = Matrix4.LookAt(
-                5.0f, 5.0f, 5.0f,
+                lookFrom.X, lookFrom.Y, lookFrom.Z,
                 0, 0, 0,
                 0, 1, 0);
             GL.MatrixMode(MatrixMode.Projection);
@@ -219,7 +238,7 @@ namespace DimL
                 aspect,
                 .1f, 100f);
             Matrix4 lookAtMatrix = Matrix4.LookAt(
-                5.0f, 5.0f, 5.0f,
+                lookFrom.X, lookFrom.Y, lookFrom.Z,
                 0, 0, 0,
                 0, 1, 0);
             GL.MatrixMode(MatrixMode.Projection);
