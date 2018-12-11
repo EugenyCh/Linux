@@ -18,9 +18,11 @@ namespace DimL
         private double velocity;
         private double direction = 1.0;
         private double step = 1.0;
-        readonly double speed = Math.PI / 3;
+        private readonly double speed = Math.PI / 3;
         private readonly List<int[]> planes = new List<int[]>();
         private int activePlane = 0;
+        private readonly float[] mat_ambient = { 0.2f, 0.4f, 0.6f };
+        private readonly float[] mat_diffuse = { 0.5f, 0.8f, 1.0f };
 
         public VFigure Figure { get; set; } = new VFigure();
         public int Dimension => Figure.Dimension;
@@ -41,8 +43,18 @@ namespace DimL
             window.Closed += Closed;
             window.KeyDown += KeyDown;
             window.KeyUp += KeyUp;
+            float[] light_ambient = { 0.0f, 0.0f, 0.0f, 1.0f };
+            float[] light_diffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
+            GL.Light(LightName.Light0, LightParameter.Ambient, light_ambient);
+            GL.Light(LightName.Light0, LightParameter.Diffuse, light_diffuse);
             GL.Enable(EnableCap.DepthTest);
             GL.DepthFunc(DepthFunction.Less);
+            GL.Enable(EnableCap.Light0);
+            GL.Enable(EnableCap.Normalize);
+            GL.ShadeModel(ShadingModel.Smooth);
+            GL.Material(MaterialFace.Front, MaterialParameter.Ambient, mat_ambient);
+            GL.Material(MaterialFace.Front, MaterialParameter.Diffuse, mat_diffuse);
+            GL.Light(LightName.Light0, LightParameter.Position, new float[] { -5f, 5f, 0f, 1f });
         }
 
         public bool LoadFigure(string pathToJson)
@@ -74,9 +86,9 @@ namespace DimL
 
         private void KeyDown(object sender, KeyboardKeyEventArgs ev)
         {
-            if (ev.Key == Key.Up || ev.Key == Key.W)
+            if (ev.Key.ToString() == "]")
                 activePlane = (activePlane + 1) % NumberOfPlanes;
-            if (ev.Key == Key.Down || ev.Key == Key.S)
+            if (ev.Key.ToString() == "[")
                 activePlane = (NumberOfPlanes + activePlane - 1) % NumberOfPlanes;
             if (ev.Alt)
                 direction = -1.0;
@@ -154,15 +166,27 @@ namespace DimL
 
         private void Render(object sender, EventArgs ev)
         {
+            GL.Enable(EnableCap.Lighting);
+            GL.MatrixMode(MatrixMode.Modelview);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.ClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+            GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             foreach (var polygon in Figure.Polygons)
             {
                 GL.Begin(PrimitiveType.Polygon);
                 foreach (var vertex in polygon)
+                {
+                    GL.Normal3(vertex.AsArray());
                     GL.Vertex3(vertex.AsArray());
+                }
                 GL.End();
             }
+            GL.Disable(EnableCap.Lighting);
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.Color3(1.0, 1.0, 1.0);
+            GL.PointSize(32);
+            GL.Begin(PrimitiveType.Points);
+            GL.Vertex3(4, 4, 4);
+            GL.End();
             window.SwapBuffers();
         }
 
@@ -202,7 +226,7 @@ namespace DimL
             GL.LoadIdentity();
             GL.LoadMatrix(ref perspectiveMatrix);
             GL.MatrixMode(MatrixMode.Modelview);
-            GL.LoadIdentity();
+            GL.LoadIdentity(); 
             GL.LoadMatrix(ref lookAtMatrix);
         }
     }
