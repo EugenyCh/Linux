@@ -65,6 +65,9 @@
     <None Include="packages.config" />
     <None Include="OpenTK.dll.config" />
     <None Include="bin\Debug\Cube4.json" />
+    <None Include="bin\Debug\Cube5.json" />
+    <None Include="bin\Debug\Cube3.json" />
+    <None Include="bin\Debug\Cube6.json" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bin\Debug\" />
