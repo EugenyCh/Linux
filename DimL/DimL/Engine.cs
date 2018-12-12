@@ -17,7 +17,7 @@ namespace DimL
         private double velocity;
         private double direction = 1.0;
         private double step = 1.0;
-        private readonly double speed = Math.PI / 3;
+        private readonly double speed = Math.PI / 2;
         private readonly List<int[]> planes = new List<int[]>();
         private int activePlane = 0;
         private readonly float[] mat_ambient = { 0.2f, 0.4f, 0.6f, 1.0f };
@@ -98,10 +98,14 @@ namespace DimL
                 activePlane = (activePlane + 1) % NumberOfPlanes;
             if (ev.Key == Key.BracketLeft)
                 activePlane = (NumberOfPlanes + activePlane - 1) % NumberOfPlanes;
-            if (ev.Alt)
+            if (ev.Control)
                 direction = -1.0;
+            else
+                direction = 1.0;
             if (ev.Shift)
                 step = 2.0;
+            else
+                step = 1.0;
             if (ev.Key == Key.Space)
                 velocity = 1.0;
             if (ev.Key == Key.Escape)
@@ -112,10 +116,6 @@ namespace DimL
 
         private void KeyUp(object sender, KeyboardKeyEventArgs ev)
         {
-            if (ev.Alt)
-                direction = 1.0;
-            if (ev.Shift)
-                step = 1.0;
             if (ev.Key == Key.Space)
                 velocity = 0.0;
         }
@@ -164,11 +164,15 @@ namespace DimL
 
         private void Update(object sender, EventArgs ev)
         {
-            double deltaAngle = velocity * speed * direction * window.UpdateTime;
+            double deltaAngle = velocity * speed * step * direction * window.UpdateTime;
             angles[activePlane] += deltaAngle;
             for (int i = 0; i < angles.Count; ++i)
-                if (Math.Abs(angles[i]) >= 2.0 * Math.PI)
-                    angles[i] -= Math.Floor(angles[i] / (2.0 * Math.PI)) * (2.0 * Math.PI);
+            {
+                if (angles[i] < 0)
+                    angles[i] += 2.0 * Math.PI;
+                if (angles[i] >= 2.0 * Math.PI)
+                    angles[i] -= 2.0 * Math.PI;
+            }
             Rotate(deltaAngle);
         }
 
@@ -177,10 +181,10 @@ namespace DimL
             var bmp = new Bitmap(labelSize.Width, labelSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             var graphics = Graphics.FromImage(bmp);
             var label =
-                $"Target Render Frequency:{string.Format("{0,6:.0}", window.TargetRenderFrequency)} Hz\n" +
-                $"Real Render Frequency:  {string.Format("{0,6:.0}", window.RenderFrequency)} Hz\n" +
-                $"Render Delta:           {string.Format("{0,6:.0}", window.RenderTime * 1000000)} \u00B5s\n" +
-                $"Update Delta:           {string.Format("{0,6:.0}", window.UpdateTime * 1000000)} \u00B5s\n";
+                $"Target Render Frequency:{string.Format("{0,6:0.0}", window.TargetRenderFrequency)} Hz\n" +
+                $"Real Render Frequency:  {string.Format("{0,6:0.0}", window.RenderFrequency)} Hz\n" +
+                $"Render Delta:           {string.Format("{0,6:0.0}", window.RenderTime * 1000000)} \u00B5s\n" +
+                $"Update Delta:           {string.Format("{0,6:0.0}", window.UpdateTime * 1000000)} \u00B5s\n";
             for (int i = 0; i < NumberOfPlanes; ++i)
             {
                 var str = $"Angle (X{planes[i][0] + 1}, X{planes[i][1] + 1})";
@@ -188,7 +192,7 @@ namespace DimL
                     str = "[" + str + "]";
                 else
                     str = " " + str + " ";
-                label += str.PadLeft(23) + ":" + string.Format("{0,6:.0}", angles[i] * 360) + "\n";
+                label += str.PadLeft(23) + ":" + string.Format("{0,6:0.0}", angles[i] * 180 / Math.PI) + "\n";
             }
             graphics.DrawString(label, font, Brushes.GreenYellow, new PointF(0, 0));
             graphics.Flush();
