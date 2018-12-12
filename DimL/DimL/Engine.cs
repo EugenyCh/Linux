@@ -75,7 +75,7 @@ namespace DimL
 
         public void Run()
         {
-            window.TargetRenderFrequency = 10.0;
+            window.TargetRenderFrequency = 60.0;
             window.Run();
         }
 
@@ -164,7 +164,7 @@ namespace DimL
 
         private void Update(object sender, EventArgs ev)
         {
-            double deltaAngle = velocity * speed * direction * window.RenderTime;
+            double deltaAngle = velocity * speed * direction * window.UpdateTime;
             angles[activePlane] += deltaAngle;
             for (int i = 0; i < angles.Count; ++i)
                 if (Math.Abs(angles[i]) >= 2.0 * Math.PI)
@@ -179,7 +179,8 @@ namespace DimL
             var label =
                 $"Target Render Frequency:{string.Format("{0,6:.0}", window.TargetRenderFrequency)} Hz\n" +
                 $"Real Render Frequency:  {string.Format("{0,6:.0}", window.RenderFrequency)} Hz\n" +
-                $"Render Delta:           {string.Format("{0,6:.0}", window.RenderTime * 1000000)} \u00B5s\n";
+                $"Render Delta:           {string.Format("{0,6:.0}", window.RenderTime * 1000000)} \u00B5s\n" +
+                $"Update Delta:           {string.Format("{0,6:.0}", window.UpdateTime * 1000000)} \u00B5s\n";
             for (int i = 0; i < NumberOfPlanes; ++i)
             {
                 var str = $"Angle (X{planes[i][0] + 1}, X{planes[i][1] + 1})";
