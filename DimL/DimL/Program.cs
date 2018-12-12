@@ -14,6 +14,8 @@ namespace DimL
             Engine engine = new Engine();
             engine.LoadFigure("Cube3.json");
             engine.Run();
+            Console.WriteLine("Window closed.");
+            return;
         }
     }
 }

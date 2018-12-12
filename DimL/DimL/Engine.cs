@@ -23,7 +23,8 @@ namespace DimL
         private readonly float[] mat_ambient = { 0.2f, 0.4f, 0.6f, 1.0f };
         private readonly float[] mat_diffuse = { 0.5f, 0.8f, 1.0f, 1.0f };
         private Vector3 lookFrom = new Vector3(5.0f, 5.0f, 5.0f);
-        private Font font = new Font("Inconsolata", 64, FontStyle.Bold);
+        private Font font = new Font("Inconsolata", 14, FontStyle.Bold);
+        private readonly Size labelSize = new Size(384, 640);
 
         public VFigure Figure { get; set; } = new VFigure();
         public int Dimension => Figure.Dimension;
@@ -41,7 +42,6 @@ namespace DimL
             window.RenderFrame += Render;
             window.Resize += Resize;
             window.Load += Load;
-            window.Closed += Closed;
             window.KeyDown += KeyDown;
             window.KeyUp += KeyUp;
             float[] light_ambient = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -77,14 +77,16 @@ namespace DimL
             window.Run(1.0 / 60.0);
         }
 
-        private void Closed(object sender, EventArgs ev)
-        {
-            window.Close();
-        }
-
         private int PlaneComparator(int[] x, int[] y)
         {
             return (Math.Pow(2, x[0]) + Math.Pow(2, x[1])).CompareTo(Math.Pow(2, y[0]) + Math.Pow(2, y[1]));
+        }
+
+        private void Close()
+        {
+            window.Close();
+            window.ProcessEvents();
+            window.Dispose();
         }
 
         private void KeyDown(object sender, KeyboardKeyEventArgs ev)
@@ -100,7 +102,7 @@ namespace DimL
             if (ev.Key == Key.Space)
                 velocity = 1.0;
             if (ev.Key == Key.Escape)
-                window.Close();
+                Close();
             //if (ev.Code == Keyboard.Key.F5)
             //    ScreenShot();
         }
@@ -169,10 +171,9 @@ namespace DimL
 
         private Bitmap GetLabelImage()
         {
-            var bmp = new Bitmap(256, 256, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            var bmp = new Bitmap(labelSize.Width, labelSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             var graphics = Graphics.FromImage(bmp);
-            graphics.Clear(Color.Coral);
-            graphics.DrawString($"{window.RenderFrequency}", font, Brushes.Cyan, new PointF(0, 0));
+            graphics.DrawString($"{window.RenderFrequency}\n012", font, Brushes.GreenYellow, new PointF(0, 0));
             graphics.Flush();
             return bmp;
         }
@@ -228,20 +229,21 @@ namespace DimL
             GL.MatrixMode(MatrixMode.Modelview);
             GL.PushMatrix();
             GL.LoadIdentity();
-            GL.Color4(1.0, 0.5, 0.5, 1.0);
+            //GL.Color4(1.0, 0.5, 0.5, 1.0);
             GL.Begin(PrimitiveType.Polygon);
             GL.TexCoord2(0, 1);
-            GL.Vertex2(window.Width / 2, window.Height / 2);
+            GL.Vertex2(0, window.Height - labelSize.Height);
             GL.TexCoord2(1, 1);
-            GL.Vertex2(window.Width / 2 + 64,  window.Height / 2);
+            GL.Vertex2(labelSize.Width, window.Height - labelSize.Height);
             GL.TexCoord2(1, 0);
-            GL.Vertex2(window.Width / 2 + 128, window.Height / 2 + 64);
+            GL.Vertex2(labelSize.Width, window.Height);
             GL.TexCoord2(0, 0);
-            GL.Vertex2(window.Width / 2, window.Height / 2 + 64);
+            GL.Vertex2(0, window.Height);
             GL.End();
             GL.PopMatrix();
             GL.MatrixMode(MatrixMode.Projection);
             GL.PopMatrix();
+            GL.DeleteTexture(texture);
             GL.Disable(EnableCap.Texture2D);
             window.SwapBuffers();
         }
