@@ -20,8 +20,8 @@ namespace DimL
         private readonly double speed = Math.PI / 2;
         private readonly List<int[]> planes = new List<int[]>();
         private int activePlane = 0;
-        private readonly float[] mat_ambient = { 0.2f, 0.4f, 0.6f, 1.0f };
-        private readonly float[] mat_diffuse = { 0.5f, 0.8f, 1.0f, 1.0f };
+        private readonly float[] mat_ambient = { 0.2f, 0.4f, 0.6f, 0.5f };
+        private readonly float[] mat_diffuse = { 0.5f, 0.8f, 1.0f, 0.5f };
         private Vector3 lookFrom;
         private double lookAngleV;
         private double lookAngleH;
@@ -29,6 +29,7 @@ namespace DimL
         private double lookMovingH;
         private Font font = new Font("Inconsolata", 14, FontStyle.Bold);
         private readonly Size labelSize = new Size(384, 640);
+        private bool solid = true;
 
         public VFigure Figure { get; set; } = new VFigure();
         public int Dimension => Figure.Dimension;
@@ -49,16 +50,26 @@ namespace DimL
             window.Load += Load;
             window.KeyDown += KeyDown;
             window.KeyUp += KeyUp;
-            float[] light_ambient = { 0.0f, 0.0f, 0.0f, 1.0f };
-            float[] light_diffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
+            float[] light_ambient = { 0.0f, 0.0f, 0.0f };
+            float[] light_diffuse0 = { 1.0f, 0.0f, 0.0f };
+            float[] light_diffuse1 = { 0.0f, 1.0f, 0.0f };
+            float[] light_diffuse2 = { 0.0f, 0.0f, 1.0f };
             GL.Light(LightName.Light0, LightParameter.Ambient, light_ambient);
-            GL.Light(LightName.Light0, LightParameter.Diffuse, light_diffuse);
+            GL.Light(LightName.Light0, LightParameter.Diffuse, light_diffuse0);
+            GL.Light(LightName.Light1, LightParameter.Ambient, light_ambient);
+            GL.Light(LightName.Light1, LightParameter.Diffuse, light_diffuse1);
+            GL.Light(LightName.Light2, LightParameter.Ambient, light_ambient);
+            GL.Light(LightName.Light2, LightParameter.Diffuse, light_diffuse2);
             GL.Enable(EnableCap.DepthTest);
             GL.DepthFunc(DepthFunction.Less);
             GL.Enable(EnableCap.Light0);
+            GL.Enable(EnableCap.Light1);
+            GL.Enable(EnableCap.Light2);
             GL.Enable(EnableCap.Normalize);
             GL.ShadeModel(ShadingModel.Smooth);
-            GL.Light(LightName.Light0, LightParameter.Position, new float[] { -5f, 5f, 0f, 1f });
+            GL.Light(LightName.Light0, LightParameter.Position, new float[] { -5f, 5f, -5f, 0f });
+            GL.Light(LightName.Light1, LightParameter.Position, new float[] { -5f, -5f, 5f, 0f });
+            GL.Light(LightName.Light2, LightParameter.Position, new float[] { 5f, -5f, -5f, 0f });
             GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Ambient, mat_ambient);
             GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Diffuse, mat_diffuse);
             GL.Enable(EnableCap.Blend);
@@ -97,6 +108,9 @@ namespace DimL
 
         private void KeyDown(object sender, KeyboardKeyEventArgs ev)
         {
+            if (ev.Key == Key.Enter)
+                solid = !solid;
+
             if (ev.Key == Key.Up)
                 lookMovingV = 1.0;
             if (ev.Key == Key.Down)
@@ -227,7 +241,8 @@ namespace DimL
                 $"Target Render Frequency:{string.Format("{0,6:0.0}", window.TargetRenderFrequency)} Hz\n" +
                 $"Real Render Frequency:  {string.Format("{0,6:0.0}", window.RenderFrequency)} Hz\n" +
                 $"Render Delta:           {string.Format("{0,6:0.0}", window.RenderTime * 1000000)} \u00B5s\n" +
-                $"Update Delta:           {string.Format("{0,6:0.0}", window.UpdateTime * 1000000)} \u00B5s\n";
+                $"Update Delta:           {string.Format("{0,6:0.0}", window.UpdateTime * 1000000)} \u00B5s\n" +
+                (solid ? "Solid model" : "Wireframe model") + "\n";
             for (int i = 0; i < NumberOfPlanes; ++i)
             {
                 var str = $"Angle (X{planes[i][0] + 1}, X{planes[i][1] + 1})";
@@ -271,12 +286,20 @@ namespace DimL
             GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             foreach (var polygon in Figure.Polygons)
             {
-                GL.Begin(PrimitiveType.Polygon);
-                foreach (var vertex in polygon)
+                if (solid)
                 {
-                    GL.Normal3(vertex.AsArray());
-                    GL.Vertex3(vertex.AsArray());
+                    GL.Begin(PrimitiveType.Polygon);
+                    foreach (var vertex in polygon)
+                    {
+                        var subvector = vertex.SubVector(0, 3).AsArray();
+                        GL.Normal3(subvector);
+                        GL.Vertex3(subvector);
+                    }
+                    GL.End();
                 }
+                GL.Begin(PrimitiveType.LineLoop);
+                foreach (var vertex in polygon)
+                    GL.Vertex3(vertex.SubVector(0, 3).AsArray());
                 GL.End();
             }
 

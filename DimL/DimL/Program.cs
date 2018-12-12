@@ -12,7 +12,7 @@ namespace DimL
         public static void Main(string[] args)
         {
             Engine engine = new Engine();
-            engine.LoadFigure("Cube3.json");
+            engine.LoadFigure("Cube4.json");
             engine.Run();
             return;
         }
