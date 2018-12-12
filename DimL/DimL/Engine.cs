@@ -22,7 +22,11 @@ namespace DimL
         private int activePlane = 0;
         private readonly float[] mat_ambient = { 0.2f, 0.4f, 0.6f, 1.0f };
         private readonly float[] mat_diffuse = { 0.5f, 0.8f, 1.0f, 1.0f };
-        private Vector3 lookFrom = new Vector3(5.0f, 5.0f, 5.0f);
+        private Vector3 lookFrom;
+        private double lookAngleV;
+        private double lookAngleH;
+        private double lookMovingV;
+        private double lookMovingH;
         private Font font = new Font("Inconsolata", 14, FontStyle.Bold);
         private readonly Size labelSize = new Size(384, 640);
 
@@ -55,10 +59,10 @@ namespace DimL
             GL.Enable(EnableCap.Normalize);
             GL.ShadeModel(ShadingModel.Smooth);
             GL.Light(LightName.Light0, LightParameter.Position, new float[] { -5f, 5f, 0f, 1f });
-            GL.Material(MaterialFace.Front, MaterialParameter.Ambient, mat_ambient);
-            GL.Material(MaterialFace.Front, MaterialParameter.Diffuse, mat_diffuse);
-            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Ambient, mat_ambient);
+            GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Diffuse, mat_diffuse);
             GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
         }
 
         public bool LoadFigure(string pathToJson)
@@ -93,19 +97,31 @@ namespace DimL
 
         private void KeyDown(object sender, KeyboardKeyEventArgs ev)
         {
+            if (ev.Key == Key.Up)
+                lookMovingV = 1.0;
+            if (ev.Key == Key.Down)
+                lookMovingV = -1.0;
+
+            if (ev.Key == Key.Right)
+                lookMovingH = 1.0;
+            if (ev.Key == Key.Left)
+                lookMovingH = -1.0;
 
             if (ev.Key == Key.BracketRight)
                 activePlane = (activePlane + 1) % NumberOfPlanes;
             if (ev.Key == Key.BracketLeft)
                 activePlane = (NumberOfPlanes + activePlane - 1) % NumberOfPlanes;
+
             if (ev.Control)
                 direction = -1.0;
             else
                 direction = 1.0;
+
             if (ev.Shift)
                 step = 2.0;
             else
                 step = 1.0;
+
             if (ev.Key == Key.Space)
                 velocity = 1.0;
             if (ev.Key == Key.Escape)
@@ -118,6 +134,10 @@ namespace DimL
         {
             if (ev.Key == Key.Space)
                 velocity = 0.0;
+            if (ev.Key == Key.Up || ev.Key == Key.Down)
+                lookMovingV = 0;
+            if (ev.Key == Key.Left || ev.Key == Key.Right)
+                lookMovingH = 0;
         }
 
         private Matrix<double> MakePlaneRotationMatrix(double angle, int xa, int xb)
@@ -164,6 +184,7 @@ namespace DimL
 
         private void Update(object sender, EventArgs ev)
         {
+            // Figure
             double deltaAngle = velocity * speed * step * direction * window.UpdateTime;
             angles[activePlane] += deltaAngle;
             for (int i = 0; i < angles.Count; ++i)
@@ -174,6 +195,28 @@ namespace DimL
                     angles[i] -= 2.0 * Math.PI;
             }
             Rotate(deltaAngle);
+            // Camera
+            lookAngleV += lookMovingV * speed * window.UpdateTime;
+            if (lookAngleV < 0)
+                lookAngleV += 2.0 * Math.PI;
+            if (lookAngleV >= 2.0 * Math.PI)
+                lookAngleV -= 2.0 * Math.PI;
+            lookAngleH += lookMovingH * speed * window.UpdateTime;
+            if (lookAngleH < 0)
+                lookAngleH += 2.0 * Math.PI;
+            if (lookAngleH >= 2.0 * Math.PI)
+                lookAngleH -= 2.0 * Math.PI;
+            lookFrom.Z = (float)(Math.Cos(lookAngleH) + Math.Sin(lookAngleH)) * (float)Math.Cos(lookAngleV);
+            lookFrom.X = (float)(Math.Cos(lookAngleH) - Math.Sin(lookAngleH)) * (float)Math.Cos(lookAngleV);
+            lookFrom.Y = (float)Math.Sqrt(2) * (float)Math.Sin(lookAngleV);
+            lookFrom *= 5.0f;
+            Matrix4 lookAtMatrix = Matrix4.LookAt(
+                lookFrom.X, lookFrom.Y, lookFrom.Z,
+                0, 0, 0,
+                0, 1, 0);
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.LoadIdentity();
+            GL.LoadMatrix(ref lookAtMatrix);
         }
 
         private Bitmap GetLabelImage()
@@ -277,16 +320,9 @@ namespace DimL
                 MathHelper.PiOver4,
                 aspect,
                 .1f, 100f);
-            Matrix4 lookAtMatrix = Matrix4.LookAt(
-                lookFrom.X, lookFrom.Y, lookFrom.Z,
-                0, 0, 0,
-                0, 1, 0);
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
             GL.LoadMatrix(ref perspectiveMatrix);
-            GL.MatrixMode(MatrixMode.Modelview);
-            GL.LoadIdentity();
-            GL.LoadMatrix(ref lookAtMatrix);
         }
 
         private void Load(object sender, EventArgs ev)
@@ -297,16 +333,9 @@ namespace DimL
                 MathHelper.PiOver4,
                 aspect,
                 .1f, 100f);
-            Matrix4 lookAtMatrix = Matrix4.LookAt(
-                lookFrom.X, lookFrom.Y, lookFrom.Z,
-                0, 0, 0,
-                0, 1, 0);
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
             GL.LoadMatrix(ref perspectiveMatrix);
-            GL.MatrixMode(MatrixMode.Modelview);
-            GL.LoadIdentity(); 
-            GL.LoadMatrix(ref lookAtMatrix);
         }
     }
 }
