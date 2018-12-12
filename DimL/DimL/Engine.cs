@@ -40,6 +40,7 @@ namespace DimL
             window = new GameWindow(DisplayDevice.Default.Width, DisplayDevice.Default.Height, mode, "ND-Render", GameWindowFlags.Fullscreen);
             window.VSync = VSyncMode.On;
             window.RenderFrame += Render;
+            window.UpdateFrame += Update;
             window.Resize += Resize;
             window.Load += Load;
             window.KeyDown += KeyDown;
@@ -74,7 +75,8 @@ namespace DimL
 
         public void Run()
         {
-            window.Run(1.0 / 60.0);
+            window.TargetRenderFrequency = 10.0;
+            window.Run();
         }
 
         private int PlaneComparator(int[] x, int[] y)
@@ -91,9 +93,10 @@ namespace DimL
 
         private void KeyDown(object sender, KeyboardKeyEventArgs ev)
         {
-            if (ev.Key.ToString() == "]")
+
+            if (ev.Key == Key.BracketRight)
                 activePlane = (activePlane + 1) % NumberOfPlanes;
-            if (ev.Key.ToString() == "[")
+            if (ev.Key == Key.BracketLeft)
                 activePlane = (NumberOfPlanes + activePlane - 1) % NumberOfPlanes;
             if (ev.Alt)
                 direction = -1.0;
@@ -149,7 +152,7 @@ namespace DimL
 
         private void Rotate(double deltaAngle)
         {
-            var matrix = MakePlaneRotationMatrix(angles[activePlane], planes[activePlane][0], planes[activePlane][1]);
+            var matrix = MakePlaneRotationMatrix(deltaAngle, planes[activePlane][0], planes[activePlane][1]);
             int size = Figure.Polygons.Count;
             for (int c = 0; c < size; ++c)
             {
@@ -159,9 +162,9 @@ namespace DimL
             }
         }
 
-        private void Update()
+        private void Update(object sender, EventArgs ev)
         {
-            double deltaAngle = velocity * speed * direction;
+            double deltaAngle = velocity * speed * direction * window.RenderTime;
             angles[activePlane] += deltaAngle;
             for (int i = 0; i < angles.Count; ++i)
                 if (Math.Abs(angles[i]) >= 2.0 * Math.PI)
@@ -173,7 +176,20 @@ namespace DimL
         {
             var bmp = new Bitmap(labelSize.Width, labelSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             var graphics = Graphics.FromImage(bmp);
-            graphics.DrawString($"{window.RenderFrequency}\n012", font, Brushes.GreenYellow, new PointF(0, 0));
+            var label =
+                $"Target Render Frequency:{string.Format("{0,6:.0}", window.TargetRenderFrequency)} Hz\n" +
+                $"Real Render Frequency:  {string.Format("{0,6:.0}", window.RenderFrequency)} Hz\n" +
+                $"Render Delta:           {string.Format("{0,6:.0}", window.RenderTime * 1000000)} \u00B5s\n";
+            for (int i = 0; i < NumberOfPlanes; ++i)
+            {
+                var str = $"Angle (X{planes[i][0] + 1}, X{planes[i][1] + 1})";
+                if (activePlane == i)
+                    str = "[" + str + "]";
+                else
+                    str = " " + str + " ";
+                label += str.PadLeft(23) + ":" + string.Format("{0,6:.0}", angles[i] * 360) + "\n";
+            }
+            graphics.DrawString(label, font, Brushes.GreenYellow, new PointF(0, 0));
             graphics.Flush();
             return bmp;
         }
