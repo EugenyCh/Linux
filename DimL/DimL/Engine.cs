@@ -177,11 +177,6 @@ namespace DimL
             planes.Sort(PlaneComparator);
         }
 
-        private int[] GetPlane(int index)
-        {
-            return planes[index];
-        }
-
         private void Rotate(double deltaAngle)
         {
             var matrix = MakePlaneRotationMatrix(deltaAngle, planes[activePlane][0], planes[activePlane][1]);

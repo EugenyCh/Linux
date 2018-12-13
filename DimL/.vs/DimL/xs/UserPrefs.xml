@@ -1,10 +1,24 @@
 ﻿<Properties StartupConfiguration="{952F8900-9543-4D90-8562-8CE61E5D0043}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="DimL/Program.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="DimL/Engine.cs">
     <Files>
-      <File FileName="DimL/Engine.cs" Line="317" Column="31" />
-      <File FileName="DimL/Program.cs" Line="23" Column="1" />
-      <File FileName="DimL/VFigure.cs" Line="1" Column="1" />
+      <File FileName="DimL/Engine.cs" Line="178" Column="10" />
+      <File FileName="DimL/VFigure.cs" Line="5" Column="28" />
+      <File FileName="DimL/Program.cs" Line="18" Column="26" />
     </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="DimL" expanded="True">
+            <Node name="DimL" expanded="True">
+              <Node name="References" expanded="True">
+                <Node name="System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" selected="True" />
+              </Node>
+              <Node name="Packages" expanded="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
