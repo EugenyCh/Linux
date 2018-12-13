@@ -19,8 +19,8 @@ namespace DimL
         private readonly double speed = Math.PI / 2;
         private readonly List<int[]> planes = new List<int[]>();
         private int activePlane = 0;
-        private readonly float[] mat_ambient = { 0.2f, 0.4f, 0.6f, 0.25f };
-        private readonly float[] mat_diffuse = { 0.5f, 0.8f, 1.0f, 0.25f };
+        private readonly float[] mat_ambient = { 0.2f, 0.4f, 0.6f, 1.0f };
+        private readonly float[] mat_diffuse = { 0.5f, 0.8f, 1.0f, 1.0f };
         private Vector3 lookFrom;
         private double lookAngleV;
         private double lookAngleH;
@@ -68,8 +68,6 @@ namespace DimL
             GL.Light(LightName.Light0, LightParameter.Position, new float[] { -5f, 5f, -5f, 0f });
             GL.Light(LightName.Light1, LightParameter.Position, new float[] { -5f, -5f, 5f, 0f });
             GL.Light(LightName.Light2, LightParameter.Position, new float[] { 5f, -5f, -5f, 0f });
-            GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Ambient, mat_ambient);
-            GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Diffuse, mat_diffuse);
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
         }
@@ -81,6 +79,10 @@ namespace DimL
             {
                 angles = Vector<double>.Build.Dense(NumberOfPlanes, 0.0);
                 MakePlanes();
+                mat_ambient[3] = 0.5f / (Dimension - 2);
+                mat_diffuse[3] = 0.5f / (Dimension - 2);
+                GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Ambient, mat_ambient);
+                GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Diffuse, mat_diffuse);
                 return true;
             }
             return false;
