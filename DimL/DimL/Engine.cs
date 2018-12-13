@@ -79,8 +79,8 @@ namespace DimL
             {
                 angles = Vector<double>.Build.Dense(NumberOfPlanes, 0.0);
                 MakePlanes();
-                mat_ambient[3] = 0.5f / (Dimension - 2);
-                mat_diffuse[3] = 0.5f / (Dimension - 2);
+                mat_ambient[3] = (float)Math.Pow(2, 2 - Dimension);
+                mat_diffuse[3] = (float)Math.Pow(2, 2 - Dimension);
                 GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Ambient, mat_ambient);
                 GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Diffuse, mat_diffuse);
                 return true;
