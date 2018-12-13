@@ -1,8 +1,13 @@
 ﻿<Properties StartupConfiguration="{952F8900-9543-4D90-8562-8CE61E5D0043}|Default">
   <MonoDevelop.Ide.Workbench ActiveDocument="DimL/Program.cs">
     <Files>
-      <File FileName="DimL/Engine.cs" Line="283" Column="43" />
-      <File FileName="DimL/Program.cs" Line="15" Column="37" />
+      <File FileName="DimL/Engine.cs" Line="166" Column="27" />
+      <File FileName="DimL/Program.cs" Line="17" Column="38" />
+      <File FileName="DimL/bin/Debug/Cube3.json" Line="1" Column="1" />
+      <File FileName="DimL/bin/Debug/Cube4.json" Line="1" Column="37" />
+      <File FileName="DimL/bin/Debug/Cube5.json" Line="1" Column="1" />
+      <File FileName="DimL/bin/Debug/Cube6.json" Line="1" Column="1" />
+      <File FileName="DimL/VFigure.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

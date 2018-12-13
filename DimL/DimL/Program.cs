@@ -11,8 +11,10 @@ namespace DimL
     {
         public static void Main(string[] args)
         {
+            if (args.Length != 1)
+                return;
             Engine engine = new Engine();
-            engine.LoadFigure("Cube6.json");
+            engine.LoadFigure(args[0]);
             engine.Run();
             return;
         }
