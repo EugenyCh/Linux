@@ -20,15 +20,15 @@ namespace DimL
         private readonly double speed = Math.PI / 2;
         private readonly List<int[]> planes = new List<int[]>();
         private int activePlane = 0;
-        private readonly float[] mat_ambient = { 0.2f, 0.4f, 0.6f, 0.5f };
-        private readonly float[] mat_diffuse = { 0.5f, 0.8f, 1.0f, 0.5f };
+        private readonly float[] mat_ambient = { 0.2f, 0.4f, 0.6f, 0.25f };
+        private readonly float[] mat_diffuse = { 0.5f, 0.8f, 1.0f, 0.25f };
         private Vector3 lookFrom;
         private double lookAngleV;
         private double lookAngleH;
         private double lookMovingV;
         private double lookMovingH;
         private Font font = new Font("Inconsolata", 14, FontStyle.Bold);
-        private readonly Size labelSize = new Size(384, 640);
+        private readonly Size labelSize;
         private bool solid = true;
 
         public VFigure Figure { get; set; } = new VFigure();
@@ -50,6 +50,7 @@ namespace DimL
             window.Load += Load;
             window.KeyDown += KeyDown;
             window.KeyUp += KeyUp;
+            labelSize = new Size(384, window.Height);
             float[] light_ambient = { 0.0f, 0.0f, 0.0f };
             float[] light_diffuse0 = { 1.0f, 0.0f, 0.0f };
             float[] light_diffuse1 = { 0.0f, 1.0f, 0.0f };
@@ -60,8 +61,6 @@ namespace DimL
             GL.Light(LightName.Light1, LightParameter.Diffuse, light_diffuse1);
             GL.Light(LightName.Light2, LightParameter.Ambient, light_ambient);
             GL.Light(LightName.Light2, LightParameter.Diffuse, light_diffuse2);
-            GL.Enable(EnableCap.DepthTest);
-            GL.DepthFunc(DepthFunction.Less);
             GL.Enable(EnableCap.Light0);
             GL.Enable(EnableCap.Light1);
             GL.Enable(EnableCap.Light2);
