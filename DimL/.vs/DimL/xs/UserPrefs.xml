@@ -1,7 +1,7 @@
 ﻿<Properties StartupConfiguration="{952F8900-9543-4D90-8562-8CE61E5D0043}|Default">
   <MonoDevelop.Ide.Workbench ActiveDocument="DimL/Engine.cs">
     <Files>
-      <File FileName="DimL/Engine.cs" Line="178" Column="10" />
+      <File FileName="DimL/Engine.cs" Line="254" Column="74" />
       <File FileName="DimL/VFigure.cs" Line="5" Column="28" />
       <File FileName="DimL/Program.cs" Line="18" Column="26" />
     </Files>
@@ -11,9 +11,14 @@
           <Node name="DimL" expanded="True">
             <Node name="DimL" expanded="True">
               <Node name="References" expanded="True">
-                <Node name="System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" selected="True" />
+                <Node name="From Packages" expanded="True" />
               </Node>
               <Node name="Packages" expanded="True" />
+              <Node name="bin" expanded="True">
+                <Node name="Debug" expanded="True" />
+              </Node>
+              <Node name="Properties" expanded="True" />
+              <Node name="Engine.cs" selected="True" />
             </Node>
           </Node>
         </State>

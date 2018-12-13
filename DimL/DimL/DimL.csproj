@@ -44,6 +44,7 @@
     <Reference Include="OpenTK">
       <HintPath>..\packages\OpenTK.3.0.1\lib\net20\OpenTK.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -58,6 +59,7 @@
     <None Include="bin\Debug\Cube5.json" />
     <None Include="bin\Debug\Cube3.json" />
     <None Include="bin\Debug\Cube6.json" />
+    <None Include="bin\Debug\FreeImage.dll.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bin\Debug\" />

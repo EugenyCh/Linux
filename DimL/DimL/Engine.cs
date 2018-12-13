@@ -7,7 +7,6 @@ using OpenTK;
 using OpenTK.Input;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
-
 namespace DimL
 {
     public class Engine
@@ -139,6 +138,26 @@ namespace DimL
                 velocity = 1.0;
             if (ev.Key == Key.Escape)
                 Close();
+            if (ev.Key == Key.S && ev.Control)
+                ScreenShot();
+        }
+
+        private void ScreenShot()
+        {
+            var pixels = new byte[3 * window.Width * window.Height];
+            GL.ReadPixels(0, 0, window.Width, window.Height, OpenTK.Graphics.OpenGL.PixelFormat.Rgb, PixelType.UnsignedByte, pixels);
+            var time = DateTime.Now;
+            var name = string.Format("{0:0000}-{1:00}-{2:00} {3:00}-{4:00}-{5:00}.{6:000}.png", time.Year, time.Month, time.Day, time.Hour, time.Minute, time.Second, time.Millisecond);
+            var bmp = new Bitmap(window.Width, window.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+            int i = 0;
+            for (int y = window.Height - 1; y >= 0; --y)
+                for (int x = 0; x < window.Width; ++x)
+                {
+                    bmp.SetPixel(x, y, Color.FromArgb(0, pixels[i + 2], pixels[i + 1], pixels[i]));
+                    i += 3;
+                }
+            bmp.Save(name);
+            bmp.Dispose();
         }
 
         private void KeyUp(object sender, KeyboardKeyEventArgs ev)
@@ -235,6 +254,8 @@ namespace DimL
                 $"Real Render Frequency:  {string.Format("{0,6:0.0}", window.RenderFrequency)} Hz\n" +
                 $"Render Delta:           {string.Format("{0,6:0.0}", window.RenderTime * 1000000)} \u00B5s\n" +
                 $"Update Delta:           {string.Format("{0,6:0.0}", window.UpdateTime * 1000000)} \u00B5s\n" +
+                $"Vertical Angle:         {string.Format("{0,6:0.0}", lookAngleV * 180 / Math.PI)}\n" +
+                $"Horizontal Agnle:       {string.Format("{0,6:0.0}", lookAngleH * 180 / Math.PI)}\n" +
                 (solid ? "Solid model" : "Wireframe model") + "\n";
             for (int i = 0; i < NumberOfPlanes; ++i)
             {
