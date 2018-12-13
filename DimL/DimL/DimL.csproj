@@ -59,7 +59,6 @@
     <None Include="bin\Debug\Cube5.json" />
     <None Include="bin\Debug\Cube3.json" />
     <None Include="bin\Debug\Cube6.json" />
-    <None Include="bin\Debug\FreeImage.dll.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bin\Debug\" />

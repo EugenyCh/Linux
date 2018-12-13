@@ -1,0 +1,15 @@
+﻿<Properties StartupConfiguration="{952F8900-9543-4D90-8562-8CE61E5D0043}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="VFigure.cs">
+    <Files>
+      <File FileName="Engine.cs" Line="261" Column="68" />
+      <File FileName="VFigure.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.ItemProperties.DimL PreferredExecutionTarget="MonoDevelop.Default" />
+</Properties>
