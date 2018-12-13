@@ -140,8 +140,6 @@ namespace DimL
                 velocity = 1.0;
             if (ev.Key == Key.Escape)
                 Close();
-            //if (ev.Code == Keyboard.Key.F5)
-            //    ScreenShot();
         }
 
         private void KeyUp(object sender, KeyboardKeyEventArgs ev)
@@ -209,6 +207,7 @@ namespace DimL
                     angles[i] -= 2.0 * Math.PI;
             }
             Rotate(deltaAngle);
+
             // Camera
             lookAngleV += lookMovingV * speed * window.UpdateTime;
             if (lookAngleV < 0)
@@ -316,7 +315,6 @@ namespace DimL
             GL.MatrixMode(MatrixMode.Modelview);
             GL.PushMatrix();
             GL.LoadIdentity();
-            //GL.Color4(1.0, 0.5, 0.5, 1.0);
             GL.Begin(PrimitiveType.Polygon);
             GL.TexCoord2(0, 1);
             GL.Vertex2(0, window.Height - labelSize.Height);

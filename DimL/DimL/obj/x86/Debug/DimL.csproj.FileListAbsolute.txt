@@ -110,6 +110,7 @@
 /home/eugeny/Projects/DimL/DimL/bin/Debug/OpenTK.pdb
 /home/eugeny/Projects/DimL/DimL/bin/Debug/OpenTK.xml
 /home/eugeny/Projects/DimL/DimL/bin/Debug/System.Buffers.xml
+/home/eugeny/Projects/DimL/DimL/obj/x86/Debug/DimL.csprojAssemblyReference.cache
 /home/eugeny/Projects/DimL/DimL/obj/x86/Debug/DimL.csproj.CoreCompileInputs.cache
 /home/eugeny/Projects/DimL/DimL/obj/x86/Debug/DimL.csproj.CopyComplete
 /home/eugeny/Projects/DimL/DimL/obj/x86/Debug/DimL.exe
