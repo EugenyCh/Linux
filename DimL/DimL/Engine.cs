@@ -30,7 +30,6 @@ namespace DimL
         private Font font = new Font("Inconsolata", 14, FontStyle.Bold);
         private readonly Size labelSize;
         private bool solid = true;
-        private double polygonSize;
 
         public VFigure Figure { get; set; } = new VFigure();
         public int Dimension => Figure.Dimension;
@@ -80,13 +79,19 @@ namespace DimL
             bool r = Figure.Load(pathToJson);
             if (r)
             {
+                double G = 0;
                 foreach (var pol in Figure.Polygons)
-                    polygonSize += pol.Count;
-                polygonSize /= Figure.Polygons.Count;
+                    G += pol.Count;
+                G /= Figure.Polygons.Count;
                 angles = Vector<double>.Build.Dense(NumberOfPlanes, 0.0);
                 MakePlanes();
-                mat_ambient[3] = (float)Math.Pow(polygonSize / 2, 2 - Dimension);
-                mat_diffuse[3] = mat_ambient[3];
+                float N = Dimension;
+                float alpha = G.Equals(3)
+                    ? 1 / (N - 1)
+                    : (float)Math.Pow(G - 2, 2 - N);
+                Console.WriteLine(alpha);
+                mat_ambient[3] = alpha;
+                mat_diffuse[3] = alpha;
                 GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Ambient, mat_ambient);
                 GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Diffuse, mat_diffuse);
                 return true;
