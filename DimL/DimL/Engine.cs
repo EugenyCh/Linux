@@ -21,6 +21,7 @@ namespace DimL
         private int activePlane = 0;
         private readonly float[] mat_ambient = { 0.2f, 0.4f, 0.6f, 1.0f };
         private readonly float[] mat_diffuse = { 0.5f, 0.8f, 1.0f, 1.0f };
+        private readonly float[] mat_emission = { 0.2f, 0.2f, 0.2f, 1.0f };
         private Vector3 lookFrom;
         private double lookAngleV;
         private double lookAngleH;
@@ -70,6 +71,7 @@ namespace DimL
             GL.Light(LightName.Light2, LightParameter.Position, new float[] { 5f, -5f, -5f, 0f });
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            GL.LineWidth(2.0f);
         }
 
         public bool LoadFigure(string pathToJson)
@@ -295,7 +297,7 @@ namespace DimL
 
         private void Render(object sender, EventArgs ev)
         {
-            // CUBE
+            // Cube
             GL.Enable(EnableCap.Lighting);
             GL.MatrixMode(MatrixMode.Modelview);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -313,13 +315,15 @@ namespace DimL
                     }
                     GL.End();
                 }
+                GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Emission, mat_emission);
                 GL.Begin(PrimitiveType.LineLoop);
                 foreach (var vertex in polygon)
                     GL.Vertex3(vertex.SubVector(0, 3).AsArray());
                 GL.End();
+                GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Emission, Color.Black);
             }
 
-            // LABEL
+            // Label
             GL.Disable(EnableCap.Lighting);
             GL.Enable(EnableCap.Texture2D);
             var texture = LoadTexture(GetLabelImage());
