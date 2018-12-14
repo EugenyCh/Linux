@@ -79,21 +79,30 @@ namespace DimL
             bool r = Figure.Load(pathToJson);
             if (r)
             {
-                double G = 0;
+                double Smid = 0.0;
+                double Smax = 0.0;
                 foreach (var pol in Figure.Polygons)
-                    G += pol.Count;
-                G /= Figure.Polygons.Count;
-                angles = Vector<double>.Build.Dense(NumberOfPlanes, 0.0);
-                MakePlanes();
-                float N = Dimension;
-                float alpha = G.Equals(3)
-                    ? 1 / (N - 1)
-                    : (float)Math.Pow(G - 2, 2 - N);
+                {
+                    double pXY = 0;
+                    double nYX = 0;
+                    for (int i = 0; i < pol.Count - 1; ++i)
+                    {
+                        pXY += pol[i][0] * pol[i + 1][1];
+                        nYX += pol[i][1] * pol[i + 1][0];
+                    }
+                    double S = (pXY - nYX) / 2;
+                    Smid += S;
+                    if (S > Smax)
+                        Smax = S;
+                }
+                float alpha = (Smid > 0) ? (float)(Smax / Smid) : 1.0f;
                 Console.WriteLine(alpha);
+                MakePlanes();
                 mat_ambient[3] = alpha;
                 mat_diffuse[3] = alpha;
                 GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Ambient, mat_ambient);
                 GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Diffuse, mat_diffuse);
+                angles = Vector<double>.Build.Dense(NumberOfPlanes, 0.0);
                 return true;
             }
             return false;
