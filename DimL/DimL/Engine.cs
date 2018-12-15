@@ -79,7 +79,7 @@ namespace DimL
             bool r = Figure.Load(pathToJson);
             if (r)
             {
-                double Smid = 0.0;
+                double Ssum = 0.0;
                 double Smax = 0.0;
                 foreach (var pol in Figure.Polygons)
                 {
@@ -91,11 +91,11 @@ namespace DimL
                         nYX += pol[i][1] * pol[i + 1][0];
                     }
                     double S = (pXY - nYX) / 2;
-                    Smid += S;
+                    Ssum += S;
                     if (S > Smax)
                         Smax = S;
                 }
-                float alpha = (Smid > 0) ? (float)(Smax / Smid) : 1.0f;
+                float alpha = (Ssum > 0) ? (float)(Smax / Ssum) : 1.0f;
                 Console.WriteLine(alpha);
                 MakePlanes();
                 mat_ambient[3] = alpha;
