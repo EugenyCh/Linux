@@ -336,7 +336,11 @@ namespace DimL
                 GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Emission, mat_emission);
                 GL.Begin(PrimitiveType.LineLoop);
                 foreach (var vertex in polygon)
-                    GL.Vertex3(vertex.SubVector(0, 3).AsArray());
+                {
+                    var subvector = vertex.SubVector(0, 3).AsArray();
+                    GL.Normal3(subvector);
+                    GL.Vertex3(subvector);
+                }
                 GL.End();
                 GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Emission, Color.Black);
             }
