@@ -1,7 +1,7 @@
 ﻿<Properties StartupConfiguration="{C00F60C0-31E9-4DAE-8ACC-9A66BA8998C6}|Default">
   <MonoDevelop.Ide.Workbench ActiveDocument="ConsoleSnake/Program.cs">
     <Files>
-      <File FileName="ConsoleSnake/Program.cs" Line="20" Column="15" />
+      <File FileName="ConsoleSnake/Program.cs" Line="168" Column="9" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.ItemProperties.ConsoleSnake PreferredExecutionTarget="MonoDevelop.Default" />

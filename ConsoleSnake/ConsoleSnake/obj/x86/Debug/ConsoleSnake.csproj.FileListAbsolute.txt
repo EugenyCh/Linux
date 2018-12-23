@@ -1,6 +1,5 @@
 /home/eugeny/Projects/ConsoleSnake/ConsoleSnake/bin/Debug/ConsoleSnake.exe
 /home/eugeny/Projects/ConsoleSnake/ConsoleSnake/bin/Debug/ConsoleSnake.pdb
-/home/eugeny/Projects/ConsoleSnake/ConsoleSnake/obj/x86/Debug/ConsoleSnake.csprojAssemblyReference.cache
 /home/eugeny/Projects/ConsoleSnake/ConsoleSnake/obj/x86/Debug/ConsoleSnake.csproj.CoreCompileInputs.cache
 /home/eugeny/Projects/ConsoleSnake/ConsoleSnake/obj/x86/Debug/ConsoleSnake.exe
 /home/eugeny/Projects/ConsoleSnake/ConsoleSnake/obj/x86/Debug/ConsoleSnake.pdb

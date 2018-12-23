@@ -24,14 +24,14 @@ namespace ConsoleSnake
     
     class MainClass
     {
-        private static double ySpeed = 1000.0 / 4;
+        private static double ySpeed = 1000.0 / 3;
         public static double DeltaTime
         {
             get
             {
                 if (Direction == Orientation.Up || Direction == Orientation.Down)
                     return ySpeed;
-                return ySpeed / 1.666;
+                return ySpeed / 2;
             }
             set
             {
@@ -55,7 +55,14 @@ namespace ConsoleSnake
         public static List<Coord> Apples = new List<Coord>();
         public static object locker = new object();
         public static bool Playing = true;
-        public const string StringGameOver = "GAME OVER!"; 
+        public const string StringGameOver = "GAME OVER!";
+        public static int Score;
+        public static int Lifes = 3;
+
+        public static string Center(string s, int width, char fill = ' ')
+        {
+            return s.PadLeft((width + s.Length) / 2, fill).PadRight(width, fill);
+        }
 
         public static List<Coord> GetEmpty()
         {
@@ -100,6 +107,19 @@ namespace ConsoleSnake
             }
         }
 
+        public static void DrawStatus()
+        {
+            var status = $" Lifes: {Lifes} | Score: {Score} ";
+            Console.SetCursorPosition(0, 0);
+            var fore = Console.ForegroundColor;
+            var back = Console.BackgroundColor;
+            Console.BackgroundColor = ConsoleColor.DarkBlue;
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(Center(status, Console.WindowWidth, '='));
+            Console.ForegroundColor = fore;
+            Console.BackgroundColor = back;
+        }
+
         public static void DrawField()
         {
             Console.Clear();
@@ -115,7 +135,7 @@ namespace ConsoleSnake
             {
                 Console.SetCursorPosition(apple.X, apple.Y);
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write("Q");
+                Console.Write("6");
             }
             Console.ForegroundColor = fore;
         }
@@ -152,8 +172,9 @@ namespace ConsoleSnake
             Console.Clear();
             Playing = false;
             Console.ForegroundColor = ConsoleColor.White;
-            Console.SetCursorPosition((Console.WindowWidth - StringGameOver.Length) / 2, Console.WindowHeight / 2);
-            Console.WriteLine(StringGameOver);
+            Console.SetCursorPosition(0, Console.WindowHeight / 2 - 1);
+            Console.Write(Center(StringGameOver, Console.WindowWidth));
+            Console.Write(Center($"Total score: {Score}", Console.WindowWidth));
         }
 
         public static void HandleEvents()
@@ -193,6 +214,7 @@ namespace ConsoleSnake
                     time = time.AddMilliseconds(DeltaTime);
                     Generate();
                     DrawField();
+                    DrawStatus();
                     DrawSnake();
                 }
             }
