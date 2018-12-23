@@ -17,10 +17,23 @@ namespace ConsoleSnake
         Up,
         Down
     }
-
+    
     class MainClass
     {
-        public static double DeltaTime = 1000.0 / 4;
+        private static double ySpeed = 1000.0 / 4;
+        public static double DeltaTime
+        {
+            get
+            {
+                if (Direction == Orientation.Up || Direction == Orientation.Down)
+                    return ySpeed;
+                return ySpeed / 1.666;
+            }
+            set
+            {
+                ySpeed = value;
+            }
+        }
         public static Coord[] Field = {
             new Coord
             {
@@ -35,9 +48,23 @@ namespace ConsoleSnake
                 Y = (Field[1].Y + Field[1].Y) / 2}
         };
         public static Orientation Direction = Orientation.Up;
+        public static List<Coord> Apples = new List<Coord>();
         public static object locker = new object();
         public static bool Playing = true;
         public const string StringGameOver = "GAME OVER!"; 
+
+        public static List<Coord> GetEmpty()
+        {
+            var map = new List<Coord>();
+            for (int y = Field[0].Y + 1; y < Field[1].Y + Field[0].Y; ++y)
+                for (int x = Field[0].X + 1; x < Field[1].X + Field[0].X; ++x)
+                    map.Add(new Coord { X = x, Y = y });
+            foreach (var coord in Snake)
+                map.Remove(coord);
+            foreach (var coord in Apples)
+                map.Remove(coord);
+            return map;
+        }
 
         public static Coord Move(Coord coord)
         {
@@ -55,6 +82,20 @@ namespace ConsoleSnake
             return coord;
         }
 
+        public static void Generate()
+        {
+            var gen = Apples.Count > 3 ? 0 : 3 - Apples.Count;
+            var map = GetEmpty();
+            var random = new Random(DateTime.Now.Millisecond);
+            while (gen > 0)
+            {
+                var index = random.Next() % map.Count;
+                Apples.Add(map[index]);
+                map.RemoveAt(index);
+                --gen;
+            }
+        }
+
         public static void DrawField()
         {
             Console.Clear();
@@ -65,6 +106,14 @@ namespace ConsoleSnake
             Console.SetCursorPosition(0, Field[0].Y + 1);
             for (int line = 0; line < Field[1].Y; ++line)
                 Console.WriteLine(new string(' ', Field[0].X) + "|".PadRight(Field[1].X + 1) + "|");
+            var fore = Console.ForegroundColor;
+            foreach (var apple in Apples)
+            {
+                Console.SetCursorPosition(apple.X, apple.Y);
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("Q");
+            }
+            Console.ForegroundColor = fore;
         }
 
         public static void DrawSnake()
@@ -75,16 +124,21 @@ namespace ConsoleSnake
                 GameOver();
             else if (newXY.Y == Field[0].Y || newXY.Y == Field[0].Y + Field[1].Y)
                 GameOver();
+            var fore = Console.ForegroundColor;
             if (Playing)
             {
-                Snake.Add(newXY);
+                Console.ForegroundColor = ConsoleColor.Green;
                 Snake.RemoveAt(0);
                 foreach (var coord in Snake)
                 {
                     Console.SetCursorPosition(coord.X, coord.Y);
                     Console.Write("#");
                 }
+                Snake.Add(newXY);
+                Console.SetCursorPosition(newXY.X, newXY.Y);
+                Console.Write("O");
             }
+            Console.ForegroundColor = fore;
         }
 
         public static void GameOver()
@@ -132,6 +186,7 @@ namespace ConsoleSnake
                 if (delta.TotalMilliseconds > DeltaTime)
                 {
                     time = time.AddMilliseconds(DeltaTime);
+                    Generate();
                     DrawField();
                     DrawSnake();
                 }
