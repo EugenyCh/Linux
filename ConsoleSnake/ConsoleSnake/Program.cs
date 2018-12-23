@@ -4,10 +4,14 @@ using System.Collections.Generic;
 
 namespace ConsoleSnake
 {
-    class Coord
+    class Coord : IEquatable<Coord>
     {
         public int X;
         public int Y;
+        public bool Equals(Coord other)
+        {
+            return X == other.X && Y == other.Y;
+        }
     }
 
     enum Orientation
@@ -56,8 +60,8 @@ namespace ConsoleSnake
         public static List<Coord> GetEmpty()
         {
             var map = new List<Coord>();
-            for (int y = Field[0].Y + 1; y < Field[1].Y + Field[0].Y; ++y)
-                for (int x = Field[0].X + 1; x < Field[1].X + Field[0].X; ++x)
+            for (int y = Field[0].Y + 1; y < Field[1].Y + Field[0].Y + 1; ++y)
+                for (int x = Field[0].X + 1; x < Field[1].X + Field[0].X + 1; ++x)
                     map.Add(new Coord { X = x, Y = y });
             foreach (var coord in Snake)
                 map.Remove(coord);
@@ -128,7 +132,8 @@ namespace ConsoleSnake
             if (Playing)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
-                Snake.RemoveAt(0);
+                if (!Apples.Remove(newXY))
+                    Snake.RemoveAt(0);
                 foreach (var coord in Snake)
                 {
                     Console.SetCursorPosition(coord.X, coord.Y);
