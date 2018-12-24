@@ -48,16 +48,19 @@ namespace ConsoleSnake
         public static List<Coord> Snake = new List<Coord>
         {
             new Coord {
-                X = (Field[0].X + Field[1].X) / 2,
-                Y = (Field[1].Y + Field[1].Y) / 2}
+                X = Field[0].X + Field[1].X / 2 + 1,
+                Y = Field[0].Y + Field[1].Y / 2 + 1}
         };
         public static Orientation Direction = Orientation.Up;
         public static List<Coord> Apples = new List<Coord>();
-        public static object locker = new object();
+        public static object Locker = new object();
         public static bool Playing = true;
         public const string StringGameOver = "GAME OVER!";
         public static int Score;
         public static int Lifes = 3;
+        public static Random Rand = new Random(DateTime.Now.Millisecond);
+        public static DateTime ZeroTime;
+        public static bool Pause;
 
         public static string Center(string s, int width, char fill = ' ')
         {
@@ -93,14 +96,25 @@ namespace ConsoleSnake
             return coord;
         }
 
+        public static void Revive()
+        {
+            Pause = true;
+            Thread.Sleep(500);
+            Snake.Clear();
+            Snake.Add(new Coord
+            {
+                X = Field[0].X + Field[1].X / 2 + 1,
+                Y = Field[0].Y + Field[1].Y / 2 + 1
+            });
+        }
+
         public static void Generate()
         {
             var gen = Apples.Count > 3 ? 0 : 3 - Apples.Count;
             var map = GetEmpty();
-            var random = new Random(DateTime.Now.Millisecond);
             while (gen > 0)
             {
-                var index = random.Next() % map.Count;
+                var index = Rand.Next() % map.Count;
                 Apples.Add(map[index]);
                 map.RemoveAt(index);
                 --gen;
@@ -113,7 +127,7 @@ namespace ConsoleSnake
             Console.SetCursorPosition(0, 0);
             var fore = Console.ForegroundColor;
             var back = Console.BackgroundColor;
-            Console.BackgroundColor = ConsoleColor.DarkBlue;
+            Console.BackgroundColor = ConsoleColor.DarkCyan;
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write(Center(status, Console.WindowWidth, '='));
             Console.ForegroundColor = fore;
@@ -122,7 +136,6 @@ namespace ConsoleSnake
 
         public static void DrawField()
         {
-            Console.Clear();
             Console.SetCursorPosition(Field[0].X, Field[0].Y);
             Console.Write("+" + new string('-', Field[1].X) + "+");
             Console.SetCursorPosition(Field[0].X, Field[0].Y + Field[1].Y + 1);
@@ -135,7 +148,7 @@ namespace ConsoleSnake
             {
                 Console.SetCursorPosition(apple.X, apple.Y);
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write("6");
+                Console.Write(((apple.X ^ apple.Y) & 0x01) == 1 ? "9" : "6");
             }
             Console.ForegroundColor = fore;
         }
@@ -144,16 +157,20 @@ namespace ConsoleSnake
         {
             var head = Snake[Snake.Count - 1];
             var newXY = Move(head);
-            if (newXY.X == Field[0].X || newXY.X == Field[0].X + Field[1].X)
-                GameOver();
-            else if (newXY.Y == Field[0].Y || newXY.Y == Field[0].Y + Field[1].Y)
-                GameOver();
+            if (newXY.X == Field[0].X || newXY.X == Field[0].X + Field[1].X
+                || newXY.Y == Field[0].Y || newXY.Y == Field[0].Y + Field[1].Y)
+            {
+                SubstractLife();
+                return;
+            }
             var fore = Console.ForegroundColor;
             if (Playing)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 if (!Apples.Remove(newXY))
                     Snake.RemoveAt(0);
+                else
+                    ++Score;
                 foreach (var coord in Snake)
                 {
                     Console.SetCursorPosition(coord.X, coord.Y);
@@ -166,15 +183,24 @@ namespace ConsoleSnake
             Console.ForegroundColor = fore;
         }
 
-        public static void GameOver()
+        public static void SubstractLife()
         {
-            Console.BackgroundColor = ConsoleColor.DarkRed;
-            Console.Clear();
-            Playing = false;
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.SetCursorPosition(0, Console.WindowHeight / 2 - 1);
-            Console.Write(Center(StringGameOver, Console.WindowWidth));
-            Console.Write(Center($"Total score: {Score}", Console.WindowWidth));
+            --Lifes;
+            if (Lifes > 0)
+                Revive();
+            else
+            {
+                var GamingTime = DateTime.Now - ZeroTime;
+                Console.BackgroundColor = ConsoleColor.DarkMagenta;
+                Console.Clear();
+                Playing = false;
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.SetCursorPosition(0, Console.WindowHeight / 2 - 1);
+                Console.Write(Center(StringGameOver, Console.WindowWidth));
+                Console.Write(Center($"Total score: {Score} | Gaming time: " + 
+                    (GamingTime.TotalMinutes >= 1.0 ? $"{(int)GamingTime.TotalMinutes} min " : "") + 
+                    $"{GamingTime.Seconds} s {GamingTime.Milliseconds} ms", Console.WindowWidth));
+            }
         }
 
         public static void HandleEvents()
@@ -182,7 +208,7 @@ namespace ConsoleSnake
             ConsoleKeyInfo keyInfo;
             do
             {
-                lock (locker)
+                lock (Locker)
                 {
                     keyInfo = Console.ReadKey(true);
                     if (keyInfo.Key == ConsoleKey.W || keyInfo.Key == ConsoleKey.UpArrow)
@@ -197,6 +223,14 @@ namespace ConsoleSnake
             } while (keyInfo.Key != ConsoleKey.Escape);
         }
 
+        public static void Draw()
+        {
+            Console.Clear();
+            DrawField();
+            DrawStatus();
+            DrawSnake();
+        }
+
         public static void Main(string[] args)
         {
             Console.BackgroundColor = ConsoleColor.Black;
@@ -206,6 +240,7 @@ namespace ConsoleSnake
             var time = DateTime.Now;
             var thread = new Thread(HandleEvents);
             thread.Start();
+            ZeroTime = DateTime.Now;
             while (thread.IsAlive && Playing)
             {
                 var delta = DateTime.Now - time;
@@ -213,9 +248,12 @@ namespace ConsoleSnake
                 {
                     time = time.AddMilliseconds(DeltaTime);
                     Generate();
-                    DrawField();
-                    DrawStatus();
-                    DrawSnake();
+                    Draw();
+                }
+                if (Pause)
+                {
+                    Pause = false;
+                    time = DateTime.Now;
                 }
             }
         }
