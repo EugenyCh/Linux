@@ -41,10 +41,10 @@ namespace ConsoleSnake
         public static Coord[] Field = {
             new Coord
             {
-                X = (Console.WindowWidth - 40) / 2,
+                X = (Console.WindowWidth - 41) / 2,
                 Y = (Console.WindowHeight - 15) / 2
             },
-            new Coord { X = 40, Y = 15 }};
+            new Coord { X = 41, Y = 15 }};
         public static List<Coord> Snake = new List<Coord>
         {
             new Coord {
@@ -157,8 +157,8 @@ namespace ConsoleSnake
         {
             var head = Snake[Snake.Count - 1];
             var newXY = Move(head);
-            if (newXY.X == Field[0].X || newXY.X == Field[0].X + Field[1].X
-                || newXY.Y == Field[0].Y || newXY.Y == Field[0].Y + Field[1].Y)
+            if (newXY.X == Field[0].X || newXY.X == Field[0].X + Field[1].X + 1
+                || newXY.Y == Field[0].Y || newXY.Y == Field[0].Y + Field[1].Y + 1)
             {
                 SubstractLife();
                 return;
