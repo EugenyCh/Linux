@@ -17,8 +17,8 @@ namespace ConsoleSnake
     enum Orientation
     {
         Left,
-        Right,
         Up,
+        Right,
         Down
     }
     
@@ -53,6 +53,8 @@ namespace ConsoleSnake
         };
         public static Orientation Direction = Orientation.Up;
         public static List<Coord> Apples = new List<Coord>();
+        public static List<Coord> Poisons = new List<Coord>();
+        public static List<Coord> Cures = new List<Coord>();
         public static object Locker = new object();
         public static bool Playing = true;
         public const string StringGameOver = "GAME OVER!";
@@ -61,6 +63,9 @@ namespace ConsoleSnake
         public static Random Rand = new Random(DateTime.Now.Millisecond);
         public static DateTime ZeroTime;
         public static bool Pause;
+        public static int ApplesCount = 5;
+        public static int PoisonsMaxCount = 2;
+        public static int CuresMaxCount = 2;
 
         public static string Center(string s, int width, char fill = ' ')
         {
@@ -80,18 +85,19 @@ namespace ConsoleSnake
             return map;
         }
 
-        public static Coord Move(Coord coord)
+        public static Coord Move(Coord coord, bool reverse = false)
         {
+            int r = reverse ? -1 : 1;
             switch (Direction)
             {
                 case Orientation.Right:
-                    return new Coord { X = coord.X + 1, Y = coord.Y };
+                    return new Coord { X = coord.X + r, Y = coord.Y };
                 case Orientation.Left:
-                    return new Coord { X = coord.X - 1, Y = coord.Y };
+                    return new Coord { X = coord.X - r, Y = coord.Y };
                 case Orientation.Up:
-                    return new Coord { X = coord.X, Y = coord.Y - 1 };
+                    return new Coord { X = coord.X, Y = coord.Y - r };
                 case Orientation.Down:
-                    return new Coord { X = coord.X, Y = coord.Y + 1 };
+                    return new Coord { X = coord.X, Y = coord.Y + r };
             }
             return coord;
         }
@@ -110,7 +116,7 @@ namespace ConsoleSnake
 
         public static void Generate()
         {
-            var gen = Apples.Count > 3 ? 0 : 3 - Apples.Count;
+            var gen = Math.Max(ApplesCount - Apples.Count, 0);
             var map = GetEmpty();
             while (gen > 0)
             {
@@ -118,6 +124,22 @@ namespace ConsoleSnake
                 Apples.Add(map[index]);
                 map.RemoveAt(index);
                 --gen;
+            }
+        }
+
+        public static void AddBonus()
+        {
+            var map = GetEmpty();
+            var index = Rand.Next() % map.Count;
+            if (Cures.Count < CuresMaxCount)
+            {
+                Cures.Add(map[index]);
+                map.RemoveAt(index);
+            }
+            else if (Poisons.Count < CuresMaxCount)
+            {
+                Poisons.Add(map[index]);
+                map.RemoveAt(index);
             }
         }
 
@@ -150,18 +172,59 @@ namespace ConsoleSnake
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write(((apple.X ^ apple.Y) & 0x01) == 1 ? "9" : "6");
             }
+            foreach (var cure in Cures)
+            {
+                Console.SetCursorPosition(cure.X, cure.Y);
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("C");
+            }
+            foreach (var poison in Poisons)
+            {
+                Console.SetCursorPosition(poison.X, poison.Y);
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.Write("P");
+            }
             Console.ForegroundColor = fore;
+        }
+
+        public static void Reverse()
+        {
+            Direction = (Orientation)(((int)Direction + 2) % 4);
         }
 
         public static void DrawSnake()
         {
             var head = Snake[Snake.Count - 1];
             var newXY = Move(head);
+            if (Snake.IndexOf(newXY) >= 0)
+            {
+                if (Snake.IndexOf(newXY) == Snake.Count - 2)
+                {
+                    Reverse();
+                    newXY = Move(head);
+                }
+                else
+                {
+                    SubstractLife();
+                    return;
+                }
+            }
             if (newXY.X == Field[0].X || newXY.X == Field[0].X + Field[1].X + 1
                 || newXY.Y == Field[0].Y || newXY.Y == Field[0].Y + Field[1].Y + 1)
             {
                 SubstractLife();
                 return;
+            }
+            var index = -1;
+            if ((index = Cures.IndexOf(newXY)) >= 0)
+            {
+                ++Lifes;
+                Cures.RemoveAt(index);
+            }
+            if ((index = Poisons.IndexOf(newXY)) >= 0)
+            {
+                SubstractLife();
+                Poisons.RemoveAt(index);
             }
             var fore = Console.ForegroundColor;
             if (Playing)
@@ -228,6 +291,10 @@ namespace ConsoleSnake
             Console.Clear();
             DrawField();
             DrawStatus();
+            var sum = Poisons.Count + Cures.Count;
+            var max = PoisonsMaxCount + CuresMaxCount;
+            if (Rand.NextDouble() < 0.1 * (1 - sum / max))
+                AddBonus();
             DrawSnake();
         }
 
